@@ -1,0 +1,452 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/rafaelsant05/IESB-PDM-OESTE/blob/main/Projeto_Tamagotchi\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "HOkXLbC1oeOn"
+      },
+      "source": [
+        "# Projeto Tamagotchi\n"
+      ],
+      "id": "HOkXLbC1oeOn"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "SxrDSAUWoeOo"
+      },
+      "source": [
+        "## Alimento e Brinquedo\n"
+      ],
+      "id": "SxrDSAUWoeOo"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "JXf00xhIoeOp"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile alimento.py\n",
+        "class Alimento:\n",
+        "    def __init__(self, nome, calorias, saciedade):\n",
+        "        self.nome = nome\n",
+        "        self.calorias = calorias\n",
+        "        self.saciedade = saciedade"
+      ],
+      "id": "JXf00xhIoeOp"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "7S-lQiPsoeOq"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile brinquedo.py\n",
+        "class Brinquedo:\n",
+        "    def __init__(self, nome, nivel_diversao, gasto_calorias, durabilidade):\n",
+        "        self.nome = nome\n",
+        "        self.nivel_diversao = nivel_diversao\n",
+        "        self.gasto_calorias = gasto_calorias\n",
+        "        self.durabilidade = durabilidade"
+      ],
+      "id": "7S-lQiPsoeOq"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ZNOks2UJoeOr"
+      },
+      "source": [
+        "## Inventario\n"
+      ],
+      "id": "ZNOks2UJoeOr"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "qkVfZTp8oeOr"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile inventario.py\n",
+        "class Inventario:\n",
+        "    def __init__(self, capacidade_maxima=10):\n",
+        "        self.capacidade_maxima = capacidade_maxima\n",
+        "        self.lista_de_itens = []\n",
+        "\n",
+        "    def adicionar_item(self, item):\n",
+        "        if len(self.lista_de_itens) < self.capacidade_maxima:\n",
+        "            self.lista_de_itens.append(item)\n",
+        "        else:\n",
+        "            print(\"Mochila cheia.\")\n",
+        "\n",
+        "    def remover_item(self, item):\n",
+        "        self.lista_de_itens.remove(item)"
+      ],
+      "id": "qkVfZTp8oeOr"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "A7nyie7xoeOs"
+      },
+      "source": [
+        "## Tamagotchi"
+      ],
+      "id": "A7nyie7xoeOs"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "T9CtJmFboeOs"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile tamagotchi.py\n",
+        "from alimento import Alimento\n",
+        "from brinquedo import Brinquedo\n",
+        "from inventario import Inventario\n",
+        "\n",
+        "\n",
+        "class Tamagotchi:\n",
+        "    def __init__(self, nome):\n",
+        "        self.nome = nome\n",
+        "        self.idade = 0\n",
+        "        self.idade_maxima = 10\n",
+        "        self.ativo = True\n",
+        "        self.__energia = 100\n",
+        "        self.__fome = 50\n",
+        "        self.__humor = 100\n",
+        "\n",
+        "        # composição: o Tamagotchi tem um Inventario\n",
+        "        self.mochila = Inventario()\n",
+        "\n",
+        "    @property\n",
+        "    def energia(self):\n",
+        "        return self.__energia\n",
+        "\n",
+        "    @energia.setter\n",
+        "    def energia(self, valor):\n",
+        "        if valor < 0 or valor > 100:\n",
+        "            raise ValueError(\"A energia deve ficar entre 0 e 100.\")\n",
+        "        self.__energia = valor\n",
+        "\n",
+        "    @property\n",
+        "    def fome(self):\n",
+        "        return self.__fome\n",
+        "\n",
+        "    @fome.setter\n",
+        "    def fome(self, valor):\n",
+        "        if valor < 0 or valor > 100:\n",
+        "            raise ValueError(\"A fome deve ficar entre 0 e 100.\")\n",
+        "        self.__fome = valor\n",
+        "\n",
+        "    @property\n",
+        "    def humor(self):\n",
+        "        return self.__humor\n",
+        "\n",
+        "    @humor.setter\n",
+        "    def humor(self, valor):\n",
+        "        if valor < 0 or valor > 100:\n",
+        "            raise ValueError(\"O humor deve ficar entre 0 e 100.\")\n",
+        "        self.__humor = valor\n",
+        "\n",
+        "    def alimentar(self, nome_alimento):\n",
+        "        if not self.ativo:\n",
+        "            return \"O mascote está inativo.\"\n",
+        "\n",
+        "        for item in self.mochila.lista_de_itens:\n",
+        "            if isinstance(item, Alimento) and item.nome == nome_alimento:\n",
+        "                self.fome = max(0, self.fome - item.saciedade)\n",
+        "                self.energia = min(100, self.energia + item.calorias)\n",
+        "                self.mochila.remover_item(item)\n",
+        "                return f\"{self.nome} comeu {item.nome}.\"\n",
+        "\n",
+        "        return \"Alimento não encontrado.\"\n",
+        "\n",
+        "    def brincar(self, nome_brinquedo):\n",
+        "        if not self.ativo:\n",
+        "            return \"O mascote está inativo.\"\n",
+        "\n",
+        "        for item in self.mochila.lista_de_itens:\n",
+        "            if isinstance(item, Brinquedo) and item.nome == nome_brinquedo:\n",
+        "                if self.energia < item.gasto_calorias:\n",
+        "                    return \"Energia insuficiente para brincar.\"\n",
+        "\n",
+        "                self.energia = self.energia - item.gasto_calorias\n",
+        "                self.humor = min(100, self.humor + item.nivel_diversao)\n",
+        "                item.durabilidade = item.durabilidade - 1\n",
+        "\n",
+        "                if item.durabilidade == 0:\n",
+        "                    self.mochila.remover_item(item)\n",
+        "\n",
+        "                return f\"{self.nome} brincou com {item.nome}.\"\n",
+        "\n",
+        "        return \"Brinquedo não encontrado.\"\n",
+        "\n",
+        "    def dormir(self):\n",
+        "        if not self.ativo:\n",
+        "            return \"O mascote está inativo.\"\n",
+        "\n",
+        "        self.energia = min(100, self.energia + 30)\n",
+        "        self.fome = min(100, self.fome + 10)\n",
+        "        return f\"{self.nome} dormiu.\"\n",
+        "\n",
+        "    def envelhecer(self):\n",
+        "        if not self.ativo:\n",
+        "            return\n",
+        "\n",
+        "        self.idade = self.idade + 1\n",
+        "        self.energia = max(0, self.energia - 10)\n",
+        "        self.fome = min(100, self.fome + 10)\n",
+        "        print(f\"{self.nome} envelheceu. Idade: {self.idade}\")\n",
+        "\n",
+        "        if self.idade == self.idade_maxima:\n",
+        "            self.ativo = False\n",
+        "            print(\"GAME OVER\")\n",
+        "\n",
+        "    def status_critico(self):\n",
+        "        return self.energia <= 20 or self.fome >= 80 or self.humor <= 20\n",
+        "\n",
+        "    def exibir_status(self):\n",
+        "        print(\"\\n--- STATUS ---\")\n",
+        "        print(\"Nome:\", self.nome)\n",
+        "        print(\"Idade:\", self.idade)\n",
+        "        print(\"Energia:\", self.energia)\n",
+        "        print(\"Fome:\", self.fome)\n",
+        "        print(\"Humor:\", self.humor)"
+      ],
+      "id": "T9CtJmFboeOs"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "accVjHkJoeOt"
+      },
+      "source": [
+        "## TempoVida\n"
+      ],
+      "id": "accVjHkJoeOt"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "u4_ah0PHoeOt"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile tempo_vida.py\n",
+        "import time\n",
+        "import threading\n",
+        "\n",
+        "\n",
+        "class TempoVida:\n",
+        "    def __init__(self, mascote, intervalo=120):\n",
+        "        self.mascote = mascote\n",
+        "        self.intervalo = intervalo\n",
+        "        self.rodando = False\n",
+        "\n",
+        "    def iniciar(self):\n",
+        "        self.rodando = True\n",
+        "        threading.Thread(target=self.contar, daemon=True).start()\n",
+        "\n",
+        "    def contar(self):\n",
+        "        while self.rodando and self.mascote.ativo:\n",
+        "            time.sleep(self.intervalo)\n",
+        "            if self.rodando:\n",
+        "                self.mascote.envelhecer()\n",
+        "\n",
+        "    def parar(self):\n",
+        "        self.rodando = False"
+      ],
+      "id": "u4_ah0PHoeOt"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "14sfV-v0oeOu"
+      },
+      "source": [
+        "## Jogo\n",
+        "\n"
+      ],
+      "id": "14sfV-v0oeOu"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "gB0Gy_dRoeOu"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%%writefile main.py\n",
+        "from tamagotchi import Tamagotchi\n",
+        "from alimento import Alimento\n",
+        "from brinquedo import Brinquedo\n",
+        "from tempo_vida import TempoVida\n",
+        "\n",
+        "\n",
+        "def iniciar_jogo():\n",
+        "    nome = input(\"Digite o nome do mascote: \")\n",
+        "    mascote = Tamagotchi(nome)\n",
+        "\n",
+        "    mascote.mochila.adicionar_item(Alimento(\"maca\", 10, 20))\n",
+        "    mascote.mochila.adicionar_item(Alimento(\"pizza\", 20, 30))\n",
+        "    mascote.mochila.adicionar_item(Brinquedo(\"bola\", 10, 20, 3))\n",
+        "    mascote.mochila.adicionar_item(Brinquedo(\"ursinho\", 15, 15, 3))\n",
+        "\n",
+        "    relogio = TempoVida(mascote)\n",
+        "    relogio.iniciar()\n",
+        "\n",
+        "    while mascote.ativo:\n",
+        "        print(\"\\n1 - Alimentar\")\n",
+        "        print(\"2 - Brincar\")\n",
+        "        print(\"3 - Dormir\")\n",
+        "        print(\"4 - Ver mochila\")\n",
+        "        print(\"0 - Sair\")\n",
+        "        opcao = input(\"Escolha: \")\n",
+        "\n",
+        "        if opcao == \"1\":\n",
+        "            nome_item = input(\"Qual alimento? \")\n",
+        "            print(mascote.alimentar(nome_item))\n",
+        "        elif opcao == \"2\":\n",
+        "            nome_item = input(\"Qual brinquedo? \")\n",
+        "            print(mascote.brincar(nome_item))\n",
+        "        elif opcao == \"3\":\n",
+        "            print(mascote.dormir())\n",
+        "        elif opcao == \"4\":\n",
+        "            for item in mascote.mochila.lista_de_itens:\n",
+        "                print(\"-\", item.nome)\n",
+        "        elif opcao == \"0\":\n",
+        "            break\n",
+        "        else:\n",
+        "            print(\"Opção inválida.\")\n",
+        "\n",
+        "        if mascote.status_critico():\n",
+        "            print(\"ALERTA: o mascote precisa de atenção!\")\n",
+        "\n",
+        "        mascote.exibir_status()\n",
+        "\n",
+        "    relogio.parar()\n",
+        "    print(\"Jogo encerrado.\")\n",
+        "\n",
+        "\n",
+        "iniciar_jogo()"
+      ],
+      "id": "gB0Gy_dRoeOu"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "iDi04fwToeOu"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "%run main.py"
+      ],
+      "id": "iDi04fwToeOu"
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "GcwXF_5foeOv"
+      },
+      "source": [
+        "## Testes\n",
+        "\n"
+      ],
+      "id": "GcwXF_5foeOv"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {
+        "id": "TbUjv3qWoeOv"
+      },
+      "execution_count": null,
+      "outputs": [],
+      "source": [
+        "import time\n",
+        "from tamagotchi import Tamagotchi\n",
+        "from alimento import Alimento\n",
+        "from brinquedo import Brinquedo\n",
+        "from tempo_vida import TempoVida\n",
+        "\n",
+        "mascote = Tamagotchi(\"Rex\")\n",
+        "print(\"Energia inicial:\", mascote.energia)\n",
+        "\n",
+        "# encapsulamento\n",
+        "try:\n",
+        "    mascote.energia = 150\n",
+        "except ValueError as erro:\n",
+        "    print(\"Erro ao colocar 150:\", erro)\n",
+        "\n",
+        "try:\n",
+        "    mascote.energia = -20\n",
+        "except ValueError as erro:\n",
+        "    print(\"Erro ao colocar -20:\", erro)\n",
+        "\n",
+        "print(\"Energia continua:\", mascote.energia)\n",
+        "\n",
+        "# alimentar e brincar\n",
+        "mascote.mochila.adicionar_item(Alimento(\"bolo\", 200, 100))\n",
+        "mascote.mochila.adicionar_item(Brinquedo(\"bola\", 10, 40, 1))\n",
+        "\n",
+        "print(mascote.alimentar(\"bolo\"))\n",
+        "print(\"Fome:\", mascote.fome, \"| Energia:\", mascote.energia)\n",
+        "\n",
+        "print(mascote.brincar(\"bola\"))\n",
+        "print(mascote.brincar(\"bola\"))    # a bola quebrou\n",
+        "\n",
+        "# tempo de vida (intervalo de 1 segundo só para testar)\n",
+        "mascote = Tamagotchi(\"Rex\")\n",
+        "relogio = TempoVida(mascote, 1)\n",
+        "relogio.iniciar()\n",
+        "time.sleep(3.5)\n",
+        "relogio.parar()\n",
+        "print(\"Idade depois de 3 segundos:\", mascote.idade)\n",
+        "\n",
+        "# idade máxima\n",
+        "for i in range(10):\n",
+        "    mascote.envelhecer()\n",
+        "print(\"Ativo:\", mascote.ativo)\n",
+        "print(mascote.alimentar(\"bolo\"))"
+      ],
+      "id": "TbUjv3qWoeOv"
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3",
+      "language": "python"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
